@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import jwtDecode from 'jwt-decode';
 import {
     Text,
     Container, 
@@ -19,6 +20,7 @@ import {
     ScrollView,
     Button
   } from "native-base";
+  import { storeAccessToken, getAccessToken } from '../utils/helpers'
   import { Svg, Path } from 'react-native-svg';
   import { ProgressChart } from 'react-native-chart-kit';
 
@@ -30,6 +32,7 @@ function AddExpense(props) {
   const [type, setType] = useState("Others")
   const [amount, setAmount] = useState(0)
   const [description, setDescription] = useState("")
+  const [user, setUser] = useState({})
 
 
   handleType = (text) => {
@@ -41,6 +44,13 @@ function AddExpense(props) {
   handleDescription = (text) => {
     setDescription(text)
   };
+
+  useEffect(async() => {
+    const accessToken = await getAccessToken()
+    const decodedToken = jwtDecode(accessToken);
+    setUser(decodedToken)
+  }, []); 
+
 
 
    postTransaction = async() => {
@@ -56,8 +66,9 @@ function AddExpense(props) {
       description
     };
   
+    const accessToken = await getAccessToken()
     // Define the API endpoint
-    const apiUrl = 'http://192.168.0.105:5001/transactions'; // Replace with the actual API URL
+    const apiUrl = 'http://192.168.29.173:5001/transactions'; // Replace with the actual API URL
   
     try {
       // Make a POST request to the API
@@ -65,6 +76,7 @@ function AddExpense(props) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
           // You may need to include additional headers, such as authentication headers, here.
         },
         body: JSON.stringify(data),
@@ -108,11 +120,12 @@ function AddExpense(props) {
     );
     }
 
+    console.log("User is :",user)
   // Render the fetched data
   return ( 
     <ScrollView>
         {alert}
-        <Text fontWeight="extrabold" fontSize="2xl" color="blue.900" marginLeft="5%">Welcome Vedant</Text>
+        <Text fontWeight="extrabold" fontSize="2xl" color="blue.900" marginLeft="5%">Welcome {user.name}</Text>
 <Text style={{ textAlign: 'center', flex: 1 }} color="blue.900" fontWeight="extrabold" fontSize="lg" marginTop="10%" marginBottom="5%">Add Expense</Text>
         <Center>
         <View>

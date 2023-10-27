@@ -4,8 +4,9 @@ import { createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import Login from "./screens/Login";
 import Dashboard from "./screens/Dashboard";
-import { NativeBaseProvider, Image, Center, Text } from "native-base";
+import { NativeBaseProvider, Image, Center, Text, Button } from "native-base";
 import AddExpense from './screens/AddExpense';
+import { clearAccessToken } from './utils/helpers'
 
 const Router = createStackNavigator(
   {
@@ -26,6 +27,7 @@ const Router = createStackNavigator(
             alt=""
           />
           <Text fontWeight="bold" fontSize="lg" color="blue.900" style={{ marginLeft: 5 }}> Smart Budget Planner</Text>
+          <Button fontWeight="bold" fontSize="lg" color="blue.900" style={{ marginLeft: 75 }} onPress={() => clearAccessToken()}> Logout</Button>
           </View>
         ),
         headerLayoutPreset: "center",
@@ -56,6 +58,7 @@ const Router = createStackNavigator(
             alt=""
           />
           <Text fontWeight="bold" fontSize="lg" color="blue.900" style={{ marginLeft: 5 }}> Smart Budget Planner</Text>
+          <Button fontWeight="bold" fontSize="lg" color="blue.900" style={{ marginLeft: 75 }} onPress={() => clearAccessToken()}> Logout</Button>
           </View>
         ),
         headerLayoutPreset: "center",
@@ -86,6 +89,7 @@ const Router = createStackNavigator(
             alt=""
           />
           <Text fontWeight="bold" fontSize="lg" color="blue.900" style={{ marginLeft: 5 }}> Smart Budget Planner</Text>
+          <Button fontWeight="bold" fontSize="lg" color="blue.900" style={{ marginRight: 0 }}> Logout</Button>
           </View>
         ),
         headerLayoutPreset: "center",
@@ -101,7 +105,7 @@ const Router = createStackNavigator(
     },
   },
   {
-    initialRouteName: "Login",
+    initialRouteName: "Dashboard",
   }
 );
 

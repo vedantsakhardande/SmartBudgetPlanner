@@ -1,5 +1,6 @@
 import { View, ScrollView, Image } from "react-native";
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
+import { storeAccessToken, getAccessToken, isAccessTokenValid, clearAccessToken } from '../utils/helpers'
 import {
   Button,
   Input,
@@ -9,41 +10,59 @@ import {
 } from "native-base";
 import * as Font from "expo";
 
-export default class Login extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      username: "",
-      password: "",
-      loginError: false,
-      isLoading: true,
-    };
-  }
+function Login(props) {
+  const [ username, setUsername ] = useState("")
+  const [ password, setPassword ] = useState("")
+  const [ loginError, setLoginError ] = useState(false)
+  const [ isLoading, setIsLoading ] = useState(true)
   handleUsername = (text) => {
-    this.setState({ username: text, loginError: false });
+    setUsername(text)
+    setLoginError(false)
   };
   handlePassword = (text) => {
-    this.setState({ password: text, loginError: false });
+    setPassword(text)
+    setLoginError(false)
   };
 
+  useEffect(async() => {
+    const isTokenValid = await isAccessTokenValid()
+    console.log("isTokenValid:",isTokenValid)
+    if (!isTokenValid) {
+      console.log("Inside token expired")
+      // Access token is expired, clear it from AsyncStorage
+      clearAccessToken();
+      // Redirect or take appropriate action
+    }
+    else{
+      console.log("Inside token expired")
+      props.navigation.navigate("Dashboard", {});
+    }
+  }, []); 
+
+  
+
   authorize = () => {
-    this.setState({ loginError: false });
-    fetch(`http://192.168.0.105:5001/login`, {
+    setLoginError(false)
+    fetch(`http://192.168.29.173:5001/login`, {
       method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
+        'Accept': 'application/json',
       },
       body: JSON.stringify({
-        username: this.state.username,
-        password: this.state.password,
+        username,
+        password,
       }),
     })
-      .then((response) => {
+      .then(async(response) => {
+        console.log("Response :",response)
         if (response.status === 200) {
-          this.props.navigation.navigate("Dashboard", {});
+          const { access_token } = await response.json()
+          storeAccessToken(access_token)
+          props.navigation.navigate("Dashboard", {});
         } else {
-          this.setState({ loginError: true });
+          setLoginError(true)
         }
       })
       .catch((error) => {
@@ -51,10 +70,10 @@ export default class Login extends Component {
       });
   };
 
-  // Prefill that data in a form and to update call /student/:rollNo OR /vaccination/:rollNo based on what is updated
-  render() {
+
+
     let alert = <View></View>;
-    if (this.state.loginError) {
+    if (loginError) {
       alert = (
         <Alert w="100%" status="error">
           <Text fontSize="md" color="coolGray.800">
@@ -94,7 +113,7 @@ export default class Login extends Component {
           </Text>
           <Input
             placeholder="Username"
-            value={this.state.username}
+            value={username}
             onChangeText={this.handleUsername}
           />
           <Text style={{ margin: 10 }} fontSize="sm">
@@ -103,7 +122,7 @@ export default class Login extends Component {
           <Input
             type="password"
             placeholder="Password"
-            value={String(this.state.password)}
+            value={String(password)}
             onChangeText={this.handlePassword}
           />
         </View>
@@ -118,5 +137,6 @@ export default class Login extends Component {
         </View>
       </ScrollView>
     );
-  }
 }
+
+export default Login;

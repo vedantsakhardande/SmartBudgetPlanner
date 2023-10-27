@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Dimensions } from 'react-native';
+import { Dimensions, useWindowDimensions } from 'react-native';
+import jwtDecode from 'jwt-decode';
 import {
     Text,
     Container, 
@@ -16,9 +17,15 @@ import {
     ScrollView,
     Button
   } from "native-base";
-  import { Svg, Path } from 'react-native-svg';
-  import { ProgressChart } from 'react-native-chart-kit';
-  import { useNavigation } from '@react-navigation/native';
+import { TabView, SceneMap } from 'react-native-tab-view';
+import { Svg, Path } from 'react-native-svg';
+import { ProgressChart } from 'react-native-chart-kit';
+import { useNavigation } from '@react-navigation/native';
+import { storeAccessToken, getAccessToken } from '../utils/helpers'
+const screenWidth = Dimensions.get('window').width;
+const chartSize = screenWidth * 0.8;
+
+
 
 
 
@@ -30,92 +37,16 @@ function Dashboard(props) {
   // State to track loading and error states
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [user, setUser] = useState({})
+  const [index, setIndex] = useState(0);
+  const [routes] = React.useState([
+    { key: 'first', title: 'Expense Tracker' },
+    { key: 'second', title: 'Expense Forecast' },
+  ]);
 
-  useEffect(() => {
-    // Function to fetch data from an API
-    async function fetchData() {
-      try {
-        const today = new Date();
-
-        // Get the first day of the current month
-        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-
-        // Format the dates in the desired format
-        const fromYear = firstDayOfMonth.getFullYear();
-        const fromMonth = String(firstDayOfMonth.getMonth() + 1).padStart(2, '0');
-        const fromDate = String(firstDayOfMonth.getDate()).padStart(2, '0');
-
-        const toYear = today.getFullYear();
-        const toMonth = String(today.getMonth() + 1).padStart(2, '0');
-        const toDate = String(today.getDate()).padStart(2, '0');
-
-        const from = `${fromYear}-${fromMonth}-${fromDate}`;
-        const to = `${toYear}-${toMonth}-${toDate}`;
-
-        // Create the date range string
-        const dateRange = `from=${from}&to=${to}`;
-        // Make a fetch request to your API endpoint
-        const response = await fetch(`http://192.168.0.105:5001/transactions?${dateRange}`);
-        
-        // Check if the response status is okay (200)
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        
-        // Parse the response data as JSON
-        const { transactions } = await response.json();
-        let totalExpensesForMonth = 0
-        transactions.forEach(transaction => {
-            totalExpensesForMonth += transaction.amount
-        })
-        const monthlyBudget = 1500
-        const percentageSpend = totalExpensesForMonth/monthlyBudget * 100
-
-
-        const data = { totalExpensesForMonth, percentageSpend, transactions }
-
-        
-        
-        // Update the state with the fetched data
-        setData(data);
-        setLoading(false); // Set loading to false
-      } catch (error) {
-        setError(error); // Set error state if there's an error
-        setLoading(false); // Set loading to false
-      }
-    }
-
-    // Call the fetchData function when the component mounts
-    fetchData();
-  }, [props]); // The empty dependency array ensures the effect runs once when the component mounts
-
-  addExpense = () => {
-    props.navigation.navigate("AddExpense", {});
-  };
-
-// 
-  const screenWidth = Dimensions.get('window').width;
-  const chartSize = screenWidth * 0.8;
-
-  // Render based on loading and error states
-  if (loading) {
-    return <Text>Loading...</Text>;
-  }
-
-  if (error) {
-    return <Text>Error: {error.message}</Text>;
-  }
-
-  const chartConfig = {
-    backgroundGradientFromOpacity: 0, // Make the start color fully transparent
-    backgroundGradientToOpacity: 0,   // Make the end color fully transparent
-    color: data.percentageSpend <= 50 ? (opacity = 1) => `rgba(8, 163, 50, ${opacity})` : data.percentageSpend < 100 ? (opacity = 1) => `rgba(222, 112, 16, ${opacity})` : (opacity = 1) => `rgba(181, 4, 4, ${opacity})`, // Adjust the color as needed
-  };
-
-  // Render the fetched data
-  return ( 
+  const FirstRoute = () => (
     <ScrollView>
-<Text fontWeight="extrabold" fontSize="2xl" color="blue.900" marginLeft="5%">Welcome Vedant</Text>
+<Text fontWeight="extrabold" fontSize="2xl" color="blue.900" marginLeft="5%">Welcome {user.name}</Text>
 <Text style={{ textAlign: 'center', flex: 1 }} color="blue.900" fontWeight="extrabold" fontSize="lg" marginTop="10%" >Expense Tracker</Text>
 <Center>
     <Button
@@ -172,6 +103,124 @@ function Dashboard(props) {
     
     </ScrollView>
   );
+  // <View style={{ flex: 1, backgroundColor: '#ff4081' }} />
+
+const SecondRoute = () => (
+  <ScrollView>
+    <Text fontWeight="extrabold" fontSize="2xl" color="blue.900" marginLeft="5%">Welcome {user.name}</Text>
+    <Text style={{ textAlign: 'center', flex: 1 }} color="blue.900" fontWeight="extrabold" fontSize="lg" marginTop="10%" >Expense Forecast</Text>
+  </ScrollView>
+);
+
+const renderScene = SceneMap({
+  first: FirstRoute,
+  second: SecondRoute,
+});
+
+  const layout = useWindowDimensions();
+
+  useEffect(() => {
+    // Function to fetch data from an API
+    async function fetchData() {
+      try {
+        const today = new Date();
+
+        // Get the first day of the current month
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+        // Format the dates in the desired format
+        const fromYear = firstDayOfMonth.getFullYear();
+        const fromMonth = String(firstDayOfMonth.getMonth() + 1).padStart(2, '0');
+        const fromDate = String(firstDayOfMonth.getDate()).padStart(2, '0');
+
+        const toYear = today.getFullYear();
+        const toMonth = String(today.getMonth() + 1).padStart(2, '0');
+        const toDate = String(today.getDate()).padStart(2, '0');
+
+        const from = `${fromYear}-${fromMonth}-${fromDate}`;
+        const to = `${toYear}-${toMonth}-${toDate}`;
+
+        // Create the date range string
+        const dateRange = `from=${from}&to=${to}`;
+        console.log("Inside here")
+        const accessToken = await getAccessToken()
+        const response = await fetch(`http://192.168.29.173:5001/transactions?${dateRange}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+          },
+        });
+        console.log("Response on dashboard side is :",response)
+        
+        // Check if the response status is okay (200)
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        
+        // Parse the response data as JSON
+        const { transactions } = await response.json();
+        let totalExpensesForMonth = 0
+        transactions.forEach(transaction => {
+            totalExpensesForMonth += transaction.amount
+        })
+        const monthlyBudget = 1500
+        const percentageSpend = totalExpensesForMonth/monthlyBudget * 100
+
+
+        const data = { totalExpensesForMonth, percentageSpend, transactions }
+        console.log("Here", data)
+        
+        
+        // Update the state with the fetched data
+        setData(data);
+        setLoading(false); // Set loading to false
+      } catch (error) {
+        console.log("Error is :",error)
+        setError(error); // Set error state if there's an error
+        setLoading(false); // Set loading to false
+      }
+    }
+
+    // Call the fetchData function when the component mounts
+    fetchData();
+  }, [props]); // The empty dependency array ensures the effect runs once when the component mounts
+
+  useEffect(async() => {
+    const accessToken = await getAccessToken()
+    const decodedToken = jwtDecode(accessToken);
+    setUser(decodedToken)
+  }, []); 
+
+  addExpense = () => {
+    props.navigation.navigate("AddExpense", {});
+  };
+
+    // Render based on loading and error states
+    if (loading) {
+      return <Text>Loading...</Text>;
+    }
+  
+    if (error) {
+      return <Text>Error: {error.message}</Text>;
+    }
+  
+    const chartConfig = {
+      backgroundGradientFromOpacity: 0, // Make the start color fully transparent
+      backgroundGradientToOpacity: 0,   // Make the end color fully transparent
+      color: data.percentageSpend <= 50 ? (opacity = 1) => `rgba(8, 163, 50, ${opacity})` : data.percentageSpend < 100 ? (opacity = 1) => `rgba(222, 112, 16, ${opacity})` : (opacity = 1) => `rgba(181, 4, 4, ${opacity})`, // Adjust the color as needed
+    };
+
+  return (
+    <TabView
+      navigationState={{ index, routes }}
+      renderScene={renderScene}
+      onIndexChange={setIndex}
+      initialLayout={{ width: layout.width }}
+    />
+  );
+// 
+  
 }
 
 export default Dashboard;
