@@ -105,7 +105,7 @@ const Router = createStackNavigator(
     },
   },
   {
-    initialRouteName: "Dashboard",
+    initialRouteName: "Login",
   }
 );
 

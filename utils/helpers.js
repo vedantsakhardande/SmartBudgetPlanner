@@ -23,7 +23,6 @@ export const getAccessToken = async () => {
 export const isAccessTokenValid = async () => {
     try {
       const token = await getAccessToken(); // Get the stored access token
-      console.log("token:",token)
       if (!token) {
         // Access token is missing or not stored
         return false;
@@ -31,7 +30,6 @@ export const isAccessTokenValid = async () => {
   
       // You may also store the expiration timestamp in AsyncStorage during login
       const expirationTimestamp = await AsyncStorage.getItem('access_token_expiry');
-      console.log("expirationTimestamp:",expirationTimestamp)
       if (!expirationTimestamp) {
         // Expiration timestamp is missing or not stored
         return false;
@@ -39,9 +37,6 @@ export const isAccessTokenValid = async () => {
   
       const currentTimestamp = Date.now();
       const tokenExpiration = parseInt(expirationTimestamp, 10);
-
-      console.log("currentTimestamp:",currentTimestamp)
-      console.log("tokenExpiration:",tokenExpiration)
   
       if (currentTimestamp < tokenExpiration) {
         // Access token is still valid

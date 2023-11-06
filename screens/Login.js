@@ -26,15 +26,12 @@ function Login(props) {
 
   useEffect(async() => {
     const isTokenValid = await isAccessTokenValid()
-    console.log("isTokenValid:",isTokenValid)
     if (!isTokenValid) {
-      console.log("Inside token expired")
       // Access token is expired, clear it from AsyncStorage
       clearAccessToken();
       // Redirect or take appropriate action
     }
     else{
-      console.log("Inside token expired")
       props.navigation.navigate("Dashboard", {});
     }
   }, []); 
@@ -43,7 +40,7 @@ function Login(props) {
 
   authorize = () => {
     setLoginError(false)
-    fetch(`http://192.168.29.173:5001/login`, {
+    fetch(`http://172.20.10.5:5001/login`, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -56,7 +53,6 @@ function Login(props) {
       }),
     })
       .then(async(response) => {
-        console.log("Response :",response)
         if (response.status === 200) {
           const { access_token } = await response.json()
           storeAccessToken(access_token)

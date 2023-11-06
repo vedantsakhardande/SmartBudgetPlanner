@@ -34,6 +34,7 @@ function Dashboard(props) {
 //   const navigation = useNavigation();
   // State to store the fetched data
   const [data, setData] = useState(null);
+  const [forecastData, setForecastData] = useState(null)
   // State to track loading and error states
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -108,7 +109,17 @@ function Dashboard(props) {
 const SecondRoute = () => (
   <ScrollView>
     <Text fontWeight="extrabold" fontSize="2xl" color="blue.900" marginLeft="5%">Welcome {user.name}</Text>
-    <Text style={{ textAlign: 'center', flex: 1 }} color="blue.900" fontWeight="extrabold" fontSize="lg" marginTop="10%" >Expense Forecast</Text>
+    <Text style={{ textAlign: 'center', flex: 1 }} color="blue.900" fontWeight="extrabold" fontSize="lg" marginTop="10%" >EXPENSE FORECAST</Text>
+    <VStack space={5} alignItems="center" style={{ marginTop: "5%" }}>
+    <Text style={{ textAlign: 'center', flex: 1 }} color="blue.900" fontWeight="extrabold" fontSize="lg" >YOU ARE</Text>
+      <Center w="64" h="20" bg={forecastData.budget_status === 'Over Budget' ? 'red.700' : 'green.700' } rounded="md" shadow={3} >
+      <Text style={{ textAlign: 'center', flex: 1 }} color="white" fontWeight="extrabold" fontSize="lg" marginTop="10%" >{forecastData.budget_status}</Text>
+      </Center>
+      <Text style={{ textAlign: 'center', flex: 1 }} color="blue.900" fontWeight="extrabold" fontSize="lg" >BY</Text>
+      <Center w="64" h="20" bg="lightBlue.700" rounded="md" shadow={3} >
+      <Text style={{ textAlign: 'center', flex: 1 }} color="white" fontWeight="extrabold" fontSize="lg" marginTop="10%" >₹{forecastData.budget_difference}</Text>  
+      </Center>
+    </VStack>
   </ScrollView>
 );
 
@@ -142,16 +153,14 @@ const renderScene = SceneMap({
 
         // Create the date range string
         const dateRange = `from=${from}&to=${to}`;
-        console.log("Inside here")
         const accessToken = await getAccessToken()
-        const response = await fetch(`http://192.168.29.173:5001/transactions?${dateRange}`, {
+        const response = await fetch(`http://172.20.10.5:5001/transactions?${dateRange}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${accessToken}`
           },
         });
-        console.log("Response on dashboard side is :",response)
         
         // Check if the response status is okay (200)
         if (!response.ok) {
@@ -161,35 +170,61 @@ const renderScene = SceneMap({
         // Parse the response data as JSON
         const { transactions } = await response.json();
         let totalExpensesForMonth = 0
+
+        let currentMonthTransactionsForecast = []
         transactions.forEach(transaction => {
             totalExpensesForMonth += transaction.amount
+            // Create a Date object from the input timestamp
+            const dateObject = new Date(transaction.timestamp);
+
+            // Format the Date object as "YYYY-MM-DD"
+            const year = dateObject.getUTCFullYear();
+            const month = (dateObject.getUTCMonth() + 1).toString().padStart(2, "0"); // Month is zero-based
+            const day = dateObject.getUTCDate().toString().padStart(2, "0");
+
+            // Combine the formatted date components
+            const formattedDate = `${year}-${month}-${day}`;
+            currentMonthTransactionsForecast.push({ Date: formattedDate, Amount: transaction.amount })
         })
         const monthlyBudget = 1500
         const percentageSpend = totalExpensesForMonth/monthlyBudget * 100
 
 
         const data = { totalExpensesForMonth, percentageSpend, transactions }
-        console.log("Here", data)
-        
+
+        const forecastResponse = await fetch(`http://172.20.10.5:5001/predict`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+          },
+          body: JSON.stringify({
+            budget: monthlyBudget,
+            transactions: currentMonthTransactionsForecast,
+          }),
+        });
+        const forecastPrediction = await forecastResponse.json()
         
         // Update the state with the fetched data
         setData(data);
+        setForecastData(forecastPrediction)
         setLoading(false); // Set loading to false
       } catch (error) {
-        console.log("Error is :",error)
         setError(error); // Set error state if there's an error
         setLoading(false); // Set loading to false
       }
     }
-
     // Call the fetchData function when the component mounts
     fetchData();
   }, [props]); // The empty dependency array ensures the effect runs once when the component mounts
 
-  useEffect(async() => {
-    const accessToken = await getAccessToken()
-    const decodedToken = jwtDecode(accessToken);
-    setUser(decodedToken)
+  useEffect(() => {
+    async function setAccessToken() {
+      const accessToken = await getAccessToken()
+      const decodedToken = jwtDecode(accessToken);
+      setUser(decodedToken)
+    }
+    setAccessToken()
   }, []); 
 
   addExpense = () => {

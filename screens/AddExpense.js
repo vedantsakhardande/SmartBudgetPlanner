@@ -68,7 +68,7 @@ function AddExpense(props) {
   
     const accessToken = await getAccessToken()
     // Define the API endpoint
-    const apiUrl = 'http://192.168.29.173:5001/transactions'; // Replace with the actual API URL
+    const apiUrl = 'http://172.20.10.5:5001/transactions'; // Replace with the actual API URL
   
     try {
       // Make a POST request to the API
@@ -120,7 +120,6 @@ function AddExpense(props) {
     );
     }
 
-    console.log("User is :",user)
   // Render the fetched data
   return ( 
     <ScrollView>
