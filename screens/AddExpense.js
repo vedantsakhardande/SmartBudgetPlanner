@@ -68,7 +68,7 @@ function AddExpense(props) {
   
     const accessToken = await getAccessToken()
     // Define the API endpoint
-    const apiUrl = 'http://172.20.10.5:5001/transactions'; // Replace with the actual API URL
+    const apiUrl = 'http://192.168.29.139:80/transactions'; // Replace with the actual API URL
   
     try {
       // Make a POST request to the API

@@ -40,7 +40,7 @@ function Login(props) {
 
   authorize = () => {
     setLoginError(false)
-    fetch(`http://172.20.10.5:5001/login`, {
+    fetch(`http://192.168.29.139:80/login`, {
       method: "POST",
       headers: {
         Accept: "application/json",

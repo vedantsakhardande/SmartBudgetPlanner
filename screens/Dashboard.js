@@ -135,26 +135,26 @@ const renderScene = SceneMap({
     async function fetchData() {
       try {
         const today = new Date();
-
+  
         // Get the first day of the current month
         const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-
+  
         // Format the dates in the desired format
         const fromYear = firstDayOfMonth.getFullYear();
         const fromMonth = String(firstDayOfMonth.getMonth() + 1).padStart(2, '0');
         const fromDate = String(firstDayOfMonth.getDate()).padStart(2, '0');
-
+  
         const toYear = today.getFullYear();
         const toMonth = String(today.getMonth() + 1).padStart(2, '0');
         const toDate = String(today.getDate()).padStart(2, '0');
-
+  
         const from = `${fromYear}-${fromMonth}-${fromDate}`;
         const to = `${toYear}-${toMonth}-${toDate}`;
-
+  
         // Create the date range string
         const dateRange = `from=${from}&to=${to}`;
         const accessToken = await getAccessToken()
-        const response = await fetch(`http://172.20.10.5:5001/transactions?${dateRange}`, {
+        const response = await fetch(`http://192.168.29.139:80/transactions?${dateRange}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -168,31 +168,31 @@ const renderScene = SceneMap({
         }
         
         // Parse the response data as JSON
-        const { transactions } = await response.json();
+        const { transactions, budget } = await response.json();
         let totalExpensesForMonth = 0
-
+  
         let currentMonthTransactionsForecast = []
         transactions.forEach(transaction => {
             totalExpensesForMonth += transaction.amount
             // Create a Date object from the input timestamp
             const dateObject = new Date(transaction.timestamp);
-
+  
             // Format the Date object as "YYYY-MM-DD"
             const year = dateObject.getUTCFullYear();
             const month = (dateObject.getUTCMonth() + 1).toString().padStart(2, "0"); // Month is zero-based
             const day = dateObject.getUTCDate().toString().padStart(2, "0");
-
+  
             // Combine the formatted date components
             const formattedDate = `${year}-${month}-${day}`;
             currentMonthTransactionsForecast.push({ Date: formattedDate, Amount: transaction.amount })
         })
-        const monthlyBudget = 1500
+        const monthlyBudget = budget
         const percentageSpend = totalExpensesForMonth/monthlyBudget * 100
-
-
+  
+  
         const data = { totalExpensesForMonth, percentageSpend, transactions }
-
-        const forecastResponse = await fetch(`http://172.20.10.5:5001/predict`, {
+  
+        const forecastResponse = await fetch(`http://192.168.29.139:80/predict`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -214,11 +214,11 @@ const renderScene = SceneMap({
         setLoading(false); // Set loading to false
       }
     }
-    // Call the fetchData function when the component mounts
-    fetchData();
-  }, [props]); // The empty dependency array ensures the effect runs once when the component mounts
+        // Call the fetchData function when the component mounts
+        fetchData();
+      }, [props]); // The empty dependency array ensures the effect runs once when the component mounts
 
-  useEffect(() => {
+    useEffect(() => {
     async function setAccessToken() {
       const accessToken = await getAccessToken()
       const decodedToken = jwtDecode(accessToken);
