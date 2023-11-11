@@ -8,20 +8,24 @@ import {
   Alert,
   Center,
 } from "native-base";
-import * as Font from "expo";
 
-function Login(props) {
+function Signup(props) {
+  const [ name, setName ] = useState("")
   const [ username, setUsername ] = useState("")
   const [ password, setPassword ] = useState("")
-  const [ loginError, setLoginError ] = useState(false)
+  const [ signupError, setSignupError ] = useState(false)
   const [ isLoading, setIsLoading ] = useState(true)
+  handleName = (text) => {
+    setName(text)
+    setSignupError(false)
+  };
   handleUsername = (text) => {
     setUsername(text)
-    setLoginError(false)
+    setSignupError(false)
   };
   handlePassword = (text) => {
     setPassword(text)
-    setLoginError(false)
+    setSignupError(false)
   };
 
   useEffect(async() => {
@@ -38,9 +42,9 @@ function Login(props) {
 
   
 
-  authorize = () => {
-    setLoginError(false)
-    fetch(`http://192.168.29.139:80/login`, {
+  signup = () => {
+    setSignupError(false)
+    fetch(`http://192.168.29.139:80/signup`, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -48,17 +52,16 @@ function Login(props) {
         'Accept': 'application/json',
       },
       body: JSON.stringify({
+        name,
         username,
         password,
       }),
     })
       .then(async(response) => {
-        if (response.status === 200) {
-          const { access_token } = await response.json()
-          storeAccessToken(access_token)
-          props.navigation.navigate("Dashboard", {});
+        if (response.status === 201) {
+          props.navigation.navigate("Login", {});
         } else {
-          setLoginError(true)
+          setSignupError(true)
         }
       })
       .catch((error) => {
@@ -69,11 +72,11 @@ function Login(props) {
 
 
     let alert = <View></View>;
-    if (loginError) {
+    if (signupError) {
       alert = (
         <Alert w="100%" status="error">
           <Text fontSize="md" color="coolGray.800">
-            Incorrect Username or Password!
+            Problem during signup
           </Text>
         </Alert>
       );
@@ -101,9 +104,17 @@ function Login(props) {
             marginTop: 20,
           }}
         >
-          Login
+          Signup
         </Text>
         <View>
+            <Text style={{ margin: 10 }} fontSize="sm">
+            Name
+          </Text>
+          <Input
+            placeholder="Name"
+            value={name}
+            onChangeText={this.handleName}
+          />
           <Text style={{ margin: 10 }} fontSize="sm">
             Username
           </Text>
@@ -126,22 +137,20 @@ function Login(props) {
           <Button
             style={{ marginVertical: "5%" }}
             bgColor="blue.900"
-            onPress={() => this.authorize()}
-          >
-            Login
-          </Button>
-        </View>
-        <View>
-          <Button
-            style={{ marginVertical: "5%" }}
-            bgColor="blue.900"
-            onPress={() => props.navigation.navigate("Signup")}
+            onPress={() => this.signup()}
           >
             Signup
           </Button>
         </View>
+        <Button
+            style={{ marginVertical: "5%" }}
+            bgColor="blue.900"
+            onPress={() => props.navigation.navigate("Login")}
+          >
+            Login
+          </Button>
       </ScrollView>
     );
 }
 
-export default Login;
+export default Signup;

@@ -111,14 +111,17 @@ const SecondRoute = () => (
     <Text fontWeight="extrabold" fontSize="2xl" color="blue.900" marginLeft="5%">Welcome {user.name}</Text>
     <Text style={{ textAlign: 'center', flex: 1 }} color="blue.900" fontWeight="extrabold" fontSize="lg" marginTop="10%" >EXPENSE FORECAST</Text>
     <VStack space={5} alignItems="center" style={{ marginTop: "5%" }}>
-    <Text style={{ textAlign: 'center', flex: 1 }} color="blue.900" fontWeight="extrabold" fontSize="lg" >YOU ARE</Text>
+    <Text style={{ textAlign: 'center', flex: 1 }} color="blue.900" fontWeight="extrabold" fontSize="lg" >{forecastData.budget_status === 'No Data Available' ? 'NO DATA AVAILABLE' : 'YOU ARE' }</Text>
+    { forecastData.budget_status !== 'No Data Available' &&
+    <>
       <Center w="64" h="20" bg={forecastData.budget_status === 'Over Budget' ? 'red.700' : 'green.700' } rounded="md" shadow={3} >
       <Text style={{ textAlign: 'center', flex: 1 }} color="white" fontWeight="extrabold" fontSize="lg" marginTop="10%" >{forecastData.budget_status}</Text>
       </Center>
-      <Text style={{ textAlign: 'center', flex: 1 }} color="blue.900" fontWeight="extrabold" fontSize="lg" >BY</Text>
+      <Text style={{ textAlign: 'center', flex: 1 }} color="blue.900" fontWeight="extrabold" fontSize="lg" >BY</Text> 
       <Center w="64" h="20" bg="lightBlue.700" rounded="md" shadow={3} >
       <Text style={{ textAlign: 'center', flex: 1 }} color="white" fontWeight="extrabold" fontSize="lg" marginTop="10%" >₹{forecastData.budget_difference}</Text>  
       </Center>
+    </>}
     </VStack>
   </ScrollView>
 );

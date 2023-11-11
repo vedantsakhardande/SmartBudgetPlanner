@@ -3,6 +3,7 @@ import React from "react";
 import { createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import Login from "./screens/Login";
+import Signup from "./screens/Signup";
 import Dashboard from "./screens/Dashboard";
 import Settings from "./screens/Settings";
 import { NativeBaseProvider, Image, Center, Text, Button, HamburgerIcon, Menu, Box, Pressable } from "native-base";
@@ -36,7 +37,55 @@ const Router = createStackNavigator(
       <Menu.Item onPress={() => navigation.navigate('Settings', {})}>
         Settings
       </Menu.Item>
-      <Menu.Item onPress={() => navigation.navigate('Logout')}>
+      <Menu.Item onPress={() => {
+        clearAccessToken()
+        navigation.navigate('Login')
+      }}>
+        Logout
+      </Menu.Item>
+    </Menu>
+          </View>
+        ),
+        headerLayoutPreset: "center",
+        headerTitleAlign: "center",
+        headerStyle: {
+          backgroundColor: "##ffffff",
+        },
+        headerTintColor: "#ffffff",
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+      }),
+    },
+    Signup: {
+      screen: Signup,
+      navigationOptions: ({ navigation }) => ({
+        title: `.`,
+        headerLeft: () => (
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Image
+            source={require("./assets/images/logo.png")}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 10,
+              marginLeft: 5,
+            }}
+            alt=""
+          />
+          <Text fontWeight="bold" fontSize="lg" color="blue.900" style={{ marginLeft: 5 }}> Smart Budget Planner</Text>
+    <Menu w="190" trigger={triggerProps => (
+      <Pressable accessibilityLabel="More options menu" {...triggerProps}>
+        <HamburgerIcon size="10" color="blue.900" style={{ marginLeft: 100, opacity: 1 }} />
+      </Pressable>
+    )}>
+      <Menu.Item onPress={() => navigation.navigate('Settings', {})}>
+        Settings
+      </Menu.Item>
+      <Menu.Item onPress={() => {
+        clearAccessToken()
+        navigation.navigate('Login')
+      }}>
         Logout
       </Menu.Item>
     </Menu>
@@ -78,7 +127,10 @@ const Router = createStackNavigator(
       <Menu.Item onPress={() => navigation.navigate('Settings', {})}>
         Settings
       </Menu.Item>
-      <Menu.Item onPress={() => navigation.navigate('Logout')}>
+      <Menu.Item onPress={() => {
+        clearAccessToken()
+        navigation.navigate('Login')
+      }}>
         Logout
       </Menu.Item>
     </Menu>
@@ -120,7 +172,10 @@ const Router = createStackNavigator(
       <Menu.Item onPress={() => navigation.navigate('Settings', {})}>
         Settings
       </Menu.Item>
-      <Menu.Item onPress={() => navigation.navigate('Logout')}>
+      <Menu.Item onPress={() => {
+        clearAccessToken()
+        navigation.navigate('Login')
+      }}>
         Logout
       </Menu.Item>
     </Menu>
@@ -162,7 +217,10 @@ const Router = createStackNavigator(
       <Menu.Item onPress={() => navigation.navigate('Settings', {})}>
         Settings
       </Menu.Item>
-      <Menu.Item onPress={() => navigation.navigate('Logout')}>
+      <Menu.Item onPress={() => {
+        clearAccessToken()
+        navigation.navigate('Login')
+      }}>
         Logout
       </Menu.Item>
     </Menu>
