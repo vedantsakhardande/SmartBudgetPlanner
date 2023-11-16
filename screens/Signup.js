@@ -44,7 +44,7 @@ function Signup(props) {
 
   signup = () => {
     setSignupError(false)
-    fetch(`http://192.168.29.139:80/signup`, {
+    fetch(`https://smart-budget-planner-api.onrender.com/signup`, {
       method: "POST",
       headers: {
         Accept: "application/json",

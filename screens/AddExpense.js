@@ -68,7 +68,7 @@ function AddExpense(props) {
   
     const accessToken = await getAccessToken()
     // Define the API endpoint
-    const apiUrl = 'http://192.168.29.139:80/transactions'; // Replace with the actual API URL
+    const apiUrl = 'https://smart-budget-planner-api.onrender.com/transactions'; // Replace with the actual API URL
   
     try {
       // Make a POST request to the API

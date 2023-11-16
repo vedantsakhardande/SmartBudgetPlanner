@@ -157,7 +157,7 @@ const renderScene = SceneMap({
         // Create the date range string
         const dateRange = `from=${from}&to=${to}`;
         const accessToken = await getAccessToken()
-        const response = await fetch(`http://192.168.29.139:80/transactions?${dateRange}`, {
+        const response = await fetch(`https://smart-budget-planner-api.onrender.com/transactions?${dateRange}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -195,7 +195,7 @@ const renderScene = SceneMap({
   
         const data = { totalExpensesForMonth, percentageSpend, transactions }
   
-        const forecastResponse = await fetch(`http://192.168.29.139:80/predict`, {
+        const forecastResponse = await fetch(`https://smart-budget-planner-api.onrender.com/predict`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

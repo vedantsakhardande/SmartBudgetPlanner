@@ -40,7 +40,7 @@ function Login(props) {
 
   authorize = () => {
     setLoginError(false)
-    fetch(`http://192.168.29.139:80/login`, {
+    fetch(`https://smart-budget-planner-api.onrender.com/login`, {
       method: "POST",
       headers: {
         Accept: "application/json",
